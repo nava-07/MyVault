@@ -12,6 +12,7 @@ import {
   Minimize2,
   Table,
   Eye,
+  X,
 } from 'lucide-react';
 import NLoader from '@/components/ui/NLoader';
 import { parseDocx } from './docxParser';
@@ -26,6 +27,17 @@ export default function DocumentPreview({
   const [zoomLevel, setZoomLevel] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  // Listen to Escape key to exit fullscreen
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isFullscreen) {
+        setIsFullscreen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isFullscreen]);
 
   // States for DOCX & Text rendering
   const [loadingContent, setLoadingContent] = useState(false);
@@ -129,7 +141,26 @@ export default function DocumentPreview({
   const googleViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(fileUrl)}&embedded=true`;
 
   return (
-    <div className={`flex flex-col bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] overflow-hidden transition-all duration-200 ${isFullscreen ? 'fixed inset-4 z-50 shadow-2xl bg-[var(--color-bg)]' : 'w-full'}`}>
+    <div
+      className={`flex flex-col bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] overflow-hidden transition-all duration-200 ${
+        isFullscreen
+          ? 'fixed inset-0 sm:inset-4 z-[9999] shadow-2xl bg-[var(--color-bg)] rounded-none sm:rounded-xl'
+          : 'w-full'
+      }`}
+    >
+      {/* Prominent Cross Button to Escape Full Screen (Especially on Mobile) */}
+      {isFullscreen && (
+        <button
+          type="button"
+          onClick={() => setIsFullscreen(false)}
+          className="fixed top-3 right-3 sm:top-6 sm:right-6 z-[10000] p-2.5 sm:p-3 rounded-full bg-slate-900/90 hover:bg-red-600 text-white shadow-2xl backdrop-blur-md transition-all active:scale-95 flex items-center justify-center border border-white/20"
+          title="Exit Fullscreen (Escape)"
+          aria-label="Exit Fullscreen"
+        >
+          <X className="w-5 h-5 sm:w-6 sm:h-6" />
+        </button>
+      )}
+
       {/* Preview Header Toolbar */}
       <div className="p-3 bg-[var(--color-surface-elevated)] border-b border-[var(--color-border)] flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
@@ -224,7 +255,7 @@ export default function DocumentPreview({
             className="btn-ghost p-1.5 text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
             title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
           >
-            {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+            {isFullscreen ? <X className="w-4 h-4 text-red-500" /> : <Maximize2 className="w-4 h-4" />}
           </button>
         </div>
       </div>
