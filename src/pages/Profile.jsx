@@ -68,7 +68,7 @@ const getAvatarGradient = (str = '') => {
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { user, profile, loading: authLoading, updateProfile, updatePassword, deleteAccount } = useAuth();
+  const { user, profile, loading: authLoading, updateProfile, deleteAccount } = useAuth();
   const { documents } = useDocuments();
 
   // Profile Form state
@@ -76,12 +76,6 @@ export default function Profile() {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [isSavingProfile, setIsSavingProfile] = useState(false);
-
-  // Password Update state
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
   // Delete Account Modal state
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -183,44 +177,6 @@ export default function Profile() {
       toast.error(err.message || 'Failed to update profile');
     } finally {
       setIsSavingProfile(false);
-    }
-  };
-
-  // Handle Update Password
-  const handleUpdatePassword = async (e) => {
-    e.preventDefault();
-
-    if (!newPassword) {
-      toast.error('Please enter a new password');
-      return;
-    }
-
-    if (newPassword.length < 8) {
-      toast.error('Password must be at least 8 characters');
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      toast.error('Passwords do not match');
-      return;
-    }
-
-    try {
-      setIsUpdatingPassword(true);
-      const { error } = await updatePassword(newPassword);
-
-      if (error) {
-        throw error;
-      }
-
-      toast.success('Password updated successfully!');
-      setNewPassword('');
-      setConfirmPassword('');
-    } catch (err) {
-      console.error('Error updating password:', err);
-      toast.error(err.message || 'Failed to update password');
-    } finally {
-      setIsUpdatingPassword(false);
     }
   };
 
@@ -425,70 +381,6 @@ export default function Profile() {
               >
                 <Save className="w-4 h-4" />
                 <span>{isSavingProfile ? 'Saving Changes...' : 'Save Changes'}</span>
-              </button>
-            </div>
-          </form>
-        </div>
-
-        {/* Change Password Form */}
-        <div className="card p-6 sm:p-8 space-y-6">
-          <div className="border-b border-[var(--color-border)] pb-3">
-            <h3 className="text-lg font-semibold text-[var(--color-text)]">
-              Change Password
-            </h3>
-            <p className="text-xs text-[var(--color-text-secondary)]">
-              Ensure your account is protected with a strong, unique password.
-            </p>
-          </div>
-
-          <form onSubmit={handleUpdatePassword} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* New Password */}
-              <div>
-                <label className="label">New Password</label>
-                <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-muted)]" />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="At least 6 characters"
-                    className="input-field pl-10 pr-10"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Confirm New Password */}
-              <div>
-                <label className="label">Confirm New Password</label>
-                <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-muted)]" />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Repeat new password"
-                    className="input-field pl-10"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-3 flex justify-end">
-              <button
-                type="submit"
-                disabled={isUpdatingPassword || !newPassword}
-                className="btn-primary inline-flex items-center gap-2 shadow-sm disabled:opacity-50"
-              >
-                <KeyRound className="w-4 h-4" />
-                <span>{isUpdatingPassword ? 'Updating Password...' : 'Update Password'}</span>
               </button>
             </div>
           </form>
